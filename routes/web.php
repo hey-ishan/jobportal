@@ -158,7 +158,14 @@ Route::get('/clear-cache', function () {
 
 });
 
-
-
+Route::get('/install-db', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        Artisan::call('db:seed', ['--force' => true]);
+        return '<h1>Database Installation Successful! 🎉</h1><p>Migrations and Seeders have run successfully. <a href="/">Click here to go to the Homepage</a></p>';
+    } catch (\Exception $e) {
+        return '<h1>Error Occurred</h1><p>' . $e->getMessage() . '</p>';
+    }
+});
 
 
