@@ -165,6 +165,15 @@ Route::get('/import-sql', function () {
             return 'Error: SQL file not found at ' . $sqlPath;
         }
         
+        // Clean slate: Drop all existing tables to prevent "Table already exists" errors
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
+        $tables = DB::select('SHOW TABLES');
+        foreach ($tables as $table) {
+            $tableName = array_values((array)$table)[0];
+            DB::statement('DROP TABLE IF EXISTS `' . $tableName . '`');
+        }
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
+        
         $sql = file_get_contents($sqlPath);
         
         // Fix for "Row size too large" error on modern MySQL versions
