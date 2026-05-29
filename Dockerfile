@@ -1,5 +1,7 @@
-FROM php:8.3-cli
+# Use PHP 8.3 with Apache for a production-ready web server
+FROM php:8.3-apache
 
+# Install required system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -10,16 +12,41 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip pdo pdo_mysql
+    && docker-php-ext-install gd zip pdo pdo_mysql \
+    && a2enmod rewrite
 
+# Set working directory
+WORKDIR /var/www/html
+
+# Change Apache document root to Laravel's public folder
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
+# OPTIMIZATION: Copy composer files FIRST to leverage Docker layer caching
+COPY composer.json composer.lock ./
 
-COPY . .
-
+# Install production dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-EXPOSE 8080
+# Copy the rest of the application code
+COPY . .
 
-CMD php artisan serve --host=0.0.0.0 --port=8080
+# CRITICAL FIX: Remove cached bootstrap files copied from local environment
+RUN rm -rf bootstrap/cache/*.php
+
+# Now safely run Laravel package discovery
+RUN composer run-script post-autoload-dump
+
+# IMPORTANT: Set proper permissions for Laravel's storage and cache directories
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Configure Apache to listen on dynamic PORT (Required for Render & Railway)
+RUN echo "Listen ${PORT:-8080}" > /etc/apache2/ports.conf
+RUN sed -ri -e 's!\*:80!\*:${PORT:-8080}!g' /etc/apache2/sites-available/*.conf
+
+# Start Apache in foreground
+CMD ["apache2-foreground"]
