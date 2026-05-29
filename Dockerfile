@@ -1,4 +1,3 @@
-```dockerfile
 FROM php:8.2-cli
 
 RUN apt-get update && apt-get install -y \
@@ -24,4 +23,4 @@ RUN php artisan view:cache || true
 EXPOSE 8080
 
 CMD php artisan serve --host=0.0.0.0 --port=8080
-```
+
