@@ -23,16 +23,20 @@ class Locale
         }
 		else
 		{
-			if (null !== $lang = \App\Language::where('is_default', '=', 1)->first()) {
-				if ($lang !== null) {
-					app()->setLocale($lang->iso_code);
-					if((bool) $lang->is_rtl){					
-						session(['localeDir' => 'rtl']);
-					}else{
-						session(['localeDir' => 'ltr']);
-					}		
-				}
-        	}			
+            try {
+                if (null !== $lang = \App\Language::where('is_default', '=', 1)->first()) {
+                    if ($lang !== null) {
+                        app()->setLocale($lang->iso_code);
+                        if((bool) $lang->is_rtl){					
+                            session(['localeDir' => 'rtl']);
+                        }else{
+                            session(['localeDir' => 'ltr']);
+                        }		
+                    }
+                }
+            } catch (\Exception $e) {
+                // Ignore missing table errors during database installation
+            }			
 		}
         return $next($request);
     }
