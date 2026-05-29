@@ -167,7 +167,10 @@ Route::get('/import-sql', function () {
         
         $sql = file_get_contents($sqlPath);
         
-        // This executes the raw SQL queries
+        // Aiven enforces primary keys. We must disable this requirement for the import session.
+        DB::unprepared('SET SESSION sql_require_primary_key = 0;');
+        
+        // Execute the raw SQL queries
         DB::unprepared($sql);
         
         return '<h1>Database Import Successful! 🎉</h1><p>Your old MySQL data is now successfully imported into the new Aiven Database. <a href="/">Click here to go to the Homepage</a></p>';
