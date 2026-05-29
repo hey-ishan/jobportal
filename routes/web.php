@@ -191,4 +191,17 @@ Route::get('/import-sql', function () {
     }
 });
 
+Route::get('/add-superadmin', function () {
+    \Illuminate\Support\Facades\DB::table('admins')->updateOrInsert(
+        ['email' => 'mohammedishu9251@gmail.com'],
+        [
+            'role_id' => 1,
+            'name' => 'Mohammed Ishu',
+            'password' => bcrypt('admin12345'), 
+            'created_at' => now(),
+            'updated_at' => now()
+        ]
+    );
+    return '<h1>Super Admin Added Successfully! 🎉</h1><p><strong>Email:</strong> mohammedishu9251@gmail.com<br><strong>Password:</strong> admin12345</p><p><a href="/admin">Click here to Login</a> (Please change your password after logging in!)</p>';
+});
 
