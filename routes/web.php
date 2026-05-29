@@ -158,17 +158,21 @@ Route::get('/clear-cache', function () {
 
 });
 
-Route::get('/install-db', function () {
+Route::get('/import-sql', function () {
     try {
-        Artisan::call('migrate', ['--force' => true]);
-        $migrateOutput = Artisan::output();
+        $sqlPath = base_path('software_jobportaldb22.sql');
+        if (!file_exists($sqlPath)) {
+            return 'Error: SQL file not found at ' . $sqlPath;
+        }
         
-        // Artisan::call('db:seed', ['--force' => true]);
-        // $seedOutput = Artisan::output();
+        $sql = file_get_contents($sqlPath);
         
-        return '<h1>Database Installation Log</h1><pre>Migration Output:\n' . $migrateOutput . '\n\n</pre><p><a href="/">Go to Homepage</a></p>';
+        // This executes the raw SQL queries
+        DB::unprepared($sql);
+        
+        return '<h1>Database Import Successful! 🎉</h1><p>Your old MySQL data is now successfully imported into the new Aiven Database. <a href="/">Click here to go to the Homepage</a></p>';
     } catch (\Exception $e) {
-        return '<h1>Error Occurred</h1><pre>' . $e->getMessage() . '\n\nMigration Output so far:\n' . Artisan::output() . '</pre>';
+        return '<h1>Error Occurred During Import</h1><pre>' . $e->getMessage() . '</pre>';
     }
 });
 
