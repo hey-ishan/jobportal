@@ -11,8 +11,9 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
+    libpq-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip pdo pdo_mysql \
+    && docker-php-ext-install gd zip pdo pdo_mysql pdo_pgsql pgsql \
     && a2enmod rewrite
 
 # Set working directory
