@@ -18,10 +18,9 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /var/www/html
 
-# Change Apache document root to Laravel's public folder
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Change Apache document root to Laravel's public folder natively
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/var/www/html/public/!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -44,9 +43,10 @@ RUN composer run-script post-autoload-dump
 # IMPORTANT: Set proper permissions for Laravel's storage and cache directories
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Configure Apache to listen on dynamic PORT (Required for Render & Railway)
-RUN echo "Listen ${PORT:-8080}" > /etc/apache2/ports.conf
-RUN sed -ri -e 's!\*:80!\*:${PORT:-8080}!g' /etc/apache2/sites-available/*.conf
+# Configure Apache to use a default port of 8080
+ENV PORT=8080
+RUN echo "Listen 8080" > /etc/apache2/ports.conf
+RUN sed -ri -e 's!\*:80!\*:8080!g' /etc/apache2/sites-available/*.conf
 
-# Start Apache in foreground
-CMD ["apache2-foreground"]
+# Start Apache in foreground, but safely inject the dynamic $PORT provided by Render/Railway at runtime first
+CMD sed -i "s/8080/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf && apache2-foreground
