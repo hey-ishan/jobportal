@@ -167,6 +167,9 @@ Route::get('/import-sql', function () {
         
         $sql = file_get_contents($sqlPath);
         
+        // Fix for "Row size too large" error on modern MySQL versions
+        $sql = str_ireplace('ROW_FORMAT=COMPACT', 'ROW_FORMAT=DYNAMIC', $sql);
+        
         // Aiven enforces primary keys. We must disable this requirement for the import session.
         DB::unprepared('SET SESSION sql_require_primary_key = 0;');
         
