@@ -25,9 +25,11 @@ class Industry extends Model
 
     public static function getUsingIndustries($limit = 10)
     {
-        $companyIds = App\Job::select('company_id')->pluck('company_id')->toArray();
-        $industryIds = App\Company::select('industry_id')->whereIn('id', $companyIds)->pluck('industry_id')->toArray();
-        return App\Industry::whereIn('industry_id', $industryIds)->lang()->active()->inRandomOrder()->paginate($limit);
+        return \Cache::remember('using_industries_'.$limit.'_'.\App::getLocale(), 3600, function () use ($limit) {
+            $companyIds = \App\Job::select('company_id')->pluck('company_id')->toArray();
+            $industryIds = \App\Company::select('industry_id')->whereIn('id', $companyIds)->pluck('industry_id')->toArray();
+            return \App\Industry::whereIn('industry_id', $industryIds)->lang()->active()->inRandomOrder()->paginate($limit);
+        });
     }
 
 }

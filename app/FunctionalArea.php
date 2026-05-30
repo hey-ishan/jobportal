@@ -25,8 +25,10 @@ class FunctionalArea extends Model
 
     public static function getUsingFunctionalAreas($limit = 10)
     {
-        $functionalAreaIds = App\Job::select('functional_area_id')->pluck('functional_area_id')->toArray();
-        return App\FunctionalArea::whereIn('functional_area_id', $functionalAreaIds)->lang()->active()->inRandomOrder()->paginate($limit);
+        return \Cache::remember('using_functional_areas_'.$limit.'_'.\App::getLocale(), 3600, function () use ($limit) {
+            $functionalAreaIds = \App\Job::select('functional_area_id')->pluck('functional_area_id')->toArray();
+            return \App\FunctionalArea::whereIn('functional_area_id', $functionalAreaIds)->lang()->active()->inRandomOrder()->paginate($limit);
+        });
     }
 
 }

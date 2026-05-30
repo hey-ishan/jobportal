@@ -37,13 +37,15 @@ class CmsContent extends Model
 
     public static function getContentBySlug($slug)
     {
-        $cms = Cms::where('page_slug', 'like', $slug)->first();
-        $cmsContent = self::where('page_id', '=', $cms->id)->where('lang', 'like', \App::getLocale())->first();
-        if (null === $cmsContent) {
-            $cmsContent = self::where('page_id', '=', $cms->id)->first();
-        }
-
-        return $cmsContent;
+        return \Cache::remember('cms_content_'.$slug.'_'.\App::getLocale(), 3600, function () use ($slug) {
+            $cms = Cms::where('page_slug', 'like', $slug)->first();
+            if (!$cms) return null;
+            $cmsContent = self::where('page_id', '=', $cms->id)->where('lang', 'like', \App::getLocale())->first();
+            if (null === $cmsContent) {
+                $cmsContent = self::where('page_id', '=', $cms->id)->first();
+            }
+            return $cmsContent;
+        });
     }
 
 }
