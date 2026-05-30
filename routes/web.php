@@ -158,6 +158,17 @@ Route::get('/clear-cache', function () {
 
 });
 
+Route::get('/update-seo', function() {
+    foreach(\App\Seo::all() as $s) { 
+        $s->seo_title = str_ireplace(['United States of America', 'USA', 'united state of america'], 'India', $s->seo_title); 
+        $s->seo_description = str_ireplace(['United States of America', 'USA'], 'India', $s->seo_description); 
+        $s->seo_keywords = str_ireplace(['United States of America', 'USA'], 'India', $s->seo_keywords); 
+        $s->save(); 
+    } 
+    return '<h1>SEO Updated!</h1><p>United States of America has been changed to India. <a href="/clear-cache">Click here to clear cache so changes take effect</a></p>';
+});
+
+
 Route::get('/import-sql', function () {
     try {
         $sqlPath = base_path('software_jobportaldb22.sql');

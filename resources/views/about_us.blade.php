@@ -63,18 +63,10 @@
                     <div class="postimg"><img src="images/about-us-img2.jpg" alt="your alt text" /></div>
                 </div>
                 <div class="col-md-7">
-                    <h2>Our Expertise</h2>
-                    <p>Doctus omnesque duo ne, cu vel offendit erroribus. Laudem hendrerit pro ex, cum postea delectus ad. Te pro feugiat perpetua tractatos. Nam movet omnes id, usu te meis corpora. Augue doming quaestio vix at. Sumo duis ea sed, ut vix euismod lobortis prodesset, everti necessitatibus mei cu.<br>
+                    <h2>About the Founder</h2>
+                    <p><strong>Mohammed Ishan</strong> is the proud founder and lead developer of this platform. He is an MCA (Master of Computer Applications) student who has studied at <strong>SKD University</strong>.<br>
                         <br>
-                        Nam ea eripuit assueverit, invenire delicatissimi ad pro, an dicam principes duo. Paulo prodesset duo ad. Duo eu summo verear. Natum gubergren definitionem id usu, graeco cetero ius ut.</p>
-                    <ul class="orderlist">
-                        <li>Mauris convallis felis</li>
-                        <li>Praesent vulputate diam</li>
-                        <li>Vestibulum nec dui</li>
-                        <li>Curabitur facilisis</li>
-                        <li>Donec euismod urna</li>
-                        <li>Mauris convallis felis</li>
-                    </ul>
+                        With a deep passion for technology and software development, he built this job portal to bridge the gap between talented candidates and top companies. His goal is to provide a fast, secure, and user-friendly experience for everyone.</p>
                 </div>
             </div>
         </div>
