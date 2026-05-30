@@ -48,21 +48,35 @@ class IndexController extends Controller
     public function index()
     {
 
-        $topCompanyIds = $this->getCompanyIdsAndNumJobs(16);
-        $topFunctionalAreaIds = $this->getFunctionalAreaIdsAndNumJobs(32);
-        $topIndustryIds = $this->getIndustryIdsFromCompanies(32);
-        $topCityIds = $this->getCityIdsAndNumJobs(32);
-        $featuredJobs = Job::active()->featured()->notExpire()->limit(12)->orderBy('id', 'desc')->get();
-        $latestJobs = Job::active()->notExpire()->orderBy('id', 'desc')->limit(18)->get();
-        $blogs = Blog::orderBy('id', 'desc')->where('lang', 'like', \App::getLocale())->limit(3)->get();
-        $video = Video::getVideo();
-        $testimonials = Testimonial::langTestimonials();
+        $topCompanyIds = \Cache::remember('home_topCompanyIds', 3600, function () { return $this->getCompanyIdsAndNumJobs(16); });
+        $topFunctionalAreaIds = \Cache::remember('home_topFunctionalAreaIds', 3600, function () { return $this->getFunctionalAreaIdsAndNumJobs(32); });
+        $topIndustryIds = \Cache::remember('home_topIndustryIds', 3600, function () { return $this->getIndustryIdsFromCompanies(32); });
+        $topCityIds = \Cache::remember('home_topCityIds', 3600, function () { return $this->getCityIdsAndNumJobs(32); });
+        
+        $featuredJobs = \Cache::remember('home_featuredJobs', 3600, function () { 
+            return Job::active()->featured()->notExpire()->limit(12)->orderBy('id', 'desc')->get(); 
+        });
+        
+        $latestJobs = \Cache::remember('home_latestJobs', 3600, function () { 
+            return Job::active()->notExpire()->orderBy('id', 'desc')->limit(18)->get(); 
+        });
+        
+        $locale = \App::getLocale();
+        $blogs = \Cache::remember('home_blogs_'.$locale, 3600, function () use ($locale) { 
+            return Blog::orderBy('id', 'desc')->where('lang', 'like', $locale)->limit(3)->get(); 
+        });
+        
+        $video = \Cache::remember('home_video', 3600, function () { return Video::getVideo(); });
+        $testimonials = \Cache::remember('home_testimonials', 3600, function () { return Testimonial::langTestimonials(); });
 
-        $functionalAreas = DataArrayHelper::langFunctionalAreasArray();
-        $countries = DataArrayHelper::langCountriesArray();
-		$sliders = Slider::langSliders();
+        $functionalAreas = \Cache::remember('home_functionalAreas', 3600, function () { return DataArrayHelper::langFunctionalAreasArray(); });
+        $countries = \Cache::remember('home_countries', 3600, function () { return DataArrayHelper::langCountriesArray(); });
+        $sliders = \Cache::remember('home_sliders', 3600, function () { return Slider::langSliders(); });
 
-        $seo = SEO::where('seo.page_title', 'like', 'front_index_page')->first();
+        $seo = \Cache::remember('home_seo', 3600, function () { 
+            return SEO::where('seo.page_title', 'like', 'front_index_page')->first(); 
+        });
+
         return view('welcome')
                         ->with('topCompanyIds', $topCompanyIds)
                         ->with('topFunctionalAreaIds', $topFunctionalAreaIds)
